@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class TicketDao implements Dao<Long,Ticket>{
-    private final static TicketDao INSTANCE = new TicketDao();
+public class TicketDao implements Dao<Long, Ticket> {
+    private static final TicketDao INSTANCE = new TicketDao();
 
     private final static String SAVE_SQL = """
             INSERT INTO  ticket 
@@ -30,7 +30,7 @@ public class TicketDao implements Dao<Long,Ticket>{
             """;
     private final static String FIND_ALL_SQL = """
             SELECT id,passport_no,passenger_name,flight_id,seat_no,cost
-            FROM ticket
+            FROM ticket t
             """;
     private final static String FIND_BY_ID_SQL = FIND_ALL_SQL + """
             WHERE id= ?
@@ -45,6 +45,9 @@ public class TicketDao implements Dao<Long,Ticket>{
             cost=?
             WHERE id = ?
                         """;
+    private final static String FIND_BY_FLIGHT_ID = FIND_ALL_SQL + """
+            WHERE t.flight_id=?
+            """;
 
     private TicketDao() {
     }
@@ -64,6 +67,21 @@ public class TicketDao implements Dao<Long,Ticket>{
                 result.getString("seat_no"),
                 result.getBigDecimal("cost")
         );
+    }
+
+    public List<Ticket> findAllByFlightId(Long id) {
+        try (var connection = ConnectionManager.get();
+             var statement = connection.prepareStatement(FIND_BY_FLIGHT_ID)) {
+            List<Ticket> tickets = new ArrayList<>();
+            statement.setLong(1, id);
+            var resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                tickets.add(buildTicket(resultSet));
+            }
+            return tickets;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 
     public List<Ticket> findAll(TicketFilter filter) {

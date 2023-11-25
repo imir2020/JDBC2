@@ -74,9 +74,14 @@ public class FlightDao implements Dao<Long, Flight> {
     }
 
     @Override
-    public Ticket save(Flight ticket) {
+    public Flight save(Flight ticket) {
         return null;
     }
+
+//    @Override
+//    public Ticket save(Flight ticket) {
+//        return null;
+//    }
 
     @Override
     public boolean delete(Long id) {

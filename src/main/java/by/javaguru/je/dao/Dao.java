@@ -12,7 +12,7 @@ public interface Dao<K,E> {
 
     Optional<E> findById(K id);
 
-    Ticket save(E ticket);
+    E save(E ticket);
 
     boolean delete(K id);
 }
